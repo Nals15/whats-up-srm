@@ -42,13 +42,16 @@ function CategoryPill({ category }) {
   );
 }
 
-export default function EventCard({ event, onBook }) {
+export default function EventCard({ event, onBook, isBooked = false, onCardClick }) {
   const { title, date, time, location, description, seatsLeft, category, image } = event;
 
   const isSoldOut = seatsLeft === 0;
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-slate-200/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:ring-indigo-300">
+    <article
+      onClick={() => onCardClick?.(event)}
+      className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-slate-200/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:ring-indigo-300 cursor-pointer"
+    >
       {/* Card Image / Banner */}
       <div className="relative h-40 w-full overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600">
         {image ? (
@@ -105,15 +108,17 @@ export default function EventCard({ event, onBook }) {
 
         {/* Book Seat Button */}
         <button
-          onClick={() => !isSoldOut && onBook?.(event)}
-          disabled={isSoldOut}
+          onClick={(e) => { e.stopPropagation(); !isSoldOut && !isBooked && onBook?.(event); }}
+          disabled={isSoldOut || isBooked}
           className={`mt-1 w-full rounded-xl py-2.5 text-sm font-semibold tracking-wide transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2
             ${isSoldOut
               ? "cursor-not-allowed bg-slate-100 text-slate-400"
+              : isBooked
+              ? "cursor-default bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200"
               : "bg-indigo-600 text-white shadow-sm hover:bg-indigo-500 active:scale-95"
             }`}
         >
-          {isSoldOut ? "Sold Out" : "Book Seat →"}
+          {isSoldOut ? "Sold Out" : isBooked ? "✓ Booked" : "Book Seat →"}
         </button>
       </div>
     </article>
